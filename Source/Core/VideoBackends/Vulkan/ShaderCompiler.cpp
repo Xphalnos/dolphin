@@ -114,11 +114,18 @@ static std::string GetShaderCode(std::string_view source, std::string_view heade
 
 static glslang::EShTargetLanguageVersion GetLanguageVersion()
 {
-  // Sub-group operations require Vulkan 1.1 and SPIR-V 1.3.
-  if (g_vulkan_context->SupportsShaderSubgroupOperations())
-    return glslang::EShTargetSpv_1_3;
+  u32 apiVersion = VK_API_VERSION_1_0;
+  vkEnumerateInstanceVersion(&apiVersion);
 
-  return glslang::EShTargetSpv_1_0;
+  if (VK_API_VERSION_MAJOR(apiVersion) == 1 || VK_API_VERSION_MINOR(apiVersion) == 1) {
+    return glslang::EShTargetSpv_1_3;
+  } else if (VK_API_VERSION_MAJOR(apiVersion) == 1 || VK_API_VERSION_MINOR(apiVersion) == 2) {
+    return glslang::EShTargetSpv_1_5;
+  } else if (VK_API_VERSION_MAJOR(apiVersion) == 1 || VK_API_VERSION_MINOR(apiVersion) >= 3) {
+    return glslang::EShTargetSpv_1_6;
+  } else {
+    return glslang::EShTargetSpv_1_0;
+  }
 }
 
 std::optional<SPIRVCodeVector> CompileVertexShader(std::string_view source_code)

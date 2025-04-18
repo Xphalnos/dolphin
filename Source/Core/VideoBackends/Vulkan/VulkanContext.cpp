@@ -206,10 +206,13 @@ static u32 getAPIVersion()
   u32 used_version = VK_API_VERSION_1_0;
   if (vkEnumerateInstanceVersion && vkEnumerateInstanceVersion(&supported_version) == VK_SUCCESS)
   {
-    // The device itself may not support 1.1, so we check that before using any 1.1 functionality.
-    if (supported_version >= VK_API_VERSION_1_2)
+    if (supported_version >= VK_API_VERSION_1_4)
+      used_version = VK_API_VERSION_1_4;
+    else if (supported_version == VK_API_VERSION_1_3)
+      used_version = VK_API_VERSION_1_3;
+    else if (supported_version == VK_API_VERSION_1_2)
       used_version = VK_API_VERSION_1_2;
-    else if (supported_version >= VK_API_VERSION_1_1)
+    else if (supported_version == VK_API_VERSION_1_1)
       used_version = VK_API_VERSION_1_1;
     WARN_LOG_FMT(HOST_GPU, "Using Vulkan 1.{}, supported: {}.{}", VK_VERSION_MINOR(used_version),
                  VK_VERSION_MAJOR(supported_version), VK_VERSION_MINOR(supported_version));
